@@ -8,28 +8,21 @@ import fetcher from "../utils/fetchMessages";
 
 const ChatInput = () => {
   const [input, setInput] = useState("");
-  const {data:messages, error, mutate} = useSWR("/api/getMessages", fetcher);
+  const { data: messages, error, mutate } = useSWR("/api/getMessages", fetcher);
   console.log(messages);
-  
 
   const addMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!input) return;
-
-    const messageToSend = input;
-
     setInput("");
 
-    const id = uuidv4();
-
     const message: Message = {
-      id,
-      message: messageToSend,
+      id: uuidv4(),
+      message: input,
       created_at: Date.now(),
       username: "Elon Musk",
       profilePic:
-        "https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=10165787690655179&height=50&width=50&text=1670750603&hash=AeQwQHgpc7_UkhQLsdY",
+        "https://scontent.fadl7-1.fna.fbcdn.net/v/t1.6435-9/90920035_10206606580800340_5302356234668605440_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=jCrh0AE9xd4AX-u0hPi&_nc_ht=scontent.fadl7-1.fna&oh=00_AfDUO2EQieI0IiZoGEsVF3OYPvGxf6C8pVzonxKybyTHOg&oe=639DA282",
       email: "shawn1876@gmail.com",
     };
 
@@ -42,21 +35,21 @@ const ChatInput = () => {
         body: JSON.stringify({
           message,
         }),
-      }).then(res => res.json())
+      }).then((res) => res.json());
 
-      return [data.message, ...messages!]
+      return [data.message, ...messages!];
     };
-    await mutate(uploadMessageToUpstash,{
+    await mutate(uploadMessageToUpstash, {
       optimisticData: [message, ...messages!],
-      rollbackOnError:true
+      rollbackOnError: true,
     });
     // uploadMessageToUpstash();
   };
-  
+
   return (
     <form
       onSubmit={addMessage}
-      className="fixed bottom-0 z-50 w-full flex px-10 py-5 border-t border-gray-100"
+      className="bg-white fixed bottom-0 z-50 w-full flex px-10 py-5 border-t border-gray-100"
     >
       <input
         type="text"
