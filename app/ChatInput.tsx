@@ -1,10 +1,18 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { Message } from "../typings";
+import useSWR from "swr";
+import fetcher from "../utils/fetchMessages";
 
 const ChatInput = () => {
   const [input, setInput] = useState("");
-  const addMessage = (e: FormEvent<HTMLFormElement>) => {
+  const {data:messages, error, mutate} = useSWR("/api/getMessages", fetcher);
+  console.log(messages);
+  
+
+  const addMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!input) return;
@@ -12,8 +20,39 @@ const ChatInput = () => {
     const messageToSend = input;
 
     setInput("");
-  };
 
+    const id = uuidv4();
+
+    const message: Message = {
+      id,
+      message: messageToSend,
+      created_at: Date.now(),
+      username: "Elon Musk",
+      profilePic:
+        "https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=10165787690655179&height=50&width=50&text=1670750603&hash=AeQwQHgpc7_UkhQLsdY",
+      email: "shawn1876@gmail.com",
+    };
+
+    const uploadMessageToUpstash = async () => {
+      const data = await fetch("/api/addMessage", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+        }),
+      }).then(res => res.json())
+
+      return [data.message, ...messages!]
+    };
+    await mutate(uploadMessageToUpstash,{
+      optimisticData: [message, ...messages!],
+      rollbackOnError:true
+    });
+    // uploadMessageToUpstash();
+  };
+  
   return (
     <form
       onSubmit={addMessage}
