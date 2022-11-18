@@ -1,4 +1,7 @@
+import { Suspense } from "react";
 import Header from "./Header";
+import Loading from "./loading";
+import HomePage from './page'
 
 export default function RootLayout({
   children,
@@ -10,7 +13,9 @@ export default function RootLayout({
       <head />
       <body>
         <Header />
-        {children}
+        <Suspense fallback={<Loading/>}>
+          <HomePage/>
+        </Suspense>  
       </body>
     </html>
   );
