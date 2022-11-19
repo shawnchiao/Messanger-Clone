@@ -5,25 +5,30 @@ import { v4 as uuidv4 } from "uuid";
 import { Message } from "../typings";
 import useSWR from "swr";
 import fetcher from "../utils/fetchMessages";
+import {unstable_getServerSession} from "next-auth/next";
 
-const ChatInput = () => {
+type Props = {
+  session: Awaited<ReturnType<typeof unstable_getServerSession>>
+} 
+
+const ChatInput = ({session}:Props) => {
   const [input, setInput] = useState("");
   const { data: messages, error, mutate } = useSWR("/api/getMessages", fetcher);
 
 
   const addMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input) return;
+    if (!input || !session) return;
     setInput("");
 
     const message: Message = {
       id: uuidv4(),
       message: input,
       created_at: Date.now(),
-      username: "Elon Musk",
+      username: session?.user?.name!,
       profilePic:
-        "https://scontent.fadl7-1.fna.fbcdn.net/v/t1.6435-9/90920035_10206606580800340_5302356234668605440_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=jCrh0AE9xd4AX-u0hPi&_nc_ht=scontent.fadl7-1.fna&oh=00_AfDUO2EQieI0IiZoGEsVF3OYPvGxf6C8pVzonxKybyTHOg&oe=639DA282",
-      email: "shawn1876@gmail.com",
+        session?.user?.image!,
+      email: session?.user?.email!,
     };
 
     const uploadMessageToUpstash = async () => {
@@ -54,6 +59,7 @@ const ChatInput = () => {
       <input
         type="text"
         value={input}
+        disabled={!session}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Enter message here..."
         className="flex-1 rounded border border-gray-300 focus:outline-none
