@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import fetcher from "../utils/fetchMessages";
 import useSWR from "swr";
@@ -9,10 +9,9 @@ import { clientPusher } from "../pusher";
 
 type Props = {
   initialMessages: Message[];
-}
+};
 
-const MessageList = ({initialMessages}: Props) => {
-
+const MessageList = ({ initialMessages }: Props) => {
   const {
     data: messages,
     error,
@@ -22,7 +21,7 @@ const MessageList = ({initialMessages}: Props) => {
   useEffect(() => {
     const channel = clientPusher.subscribe("messages");
     channel.bind("new-message", async (data: Message) => {
-      if(messages?.find((message)=> message.id === data.id)) return;
+      if (messages?.find((message) => message.id === data.id)) return;
       if (!messages) {
         mutate(fetcher);
       } else {
@@ -30,25 +29,19 @@ const MessageList = ({initialMessages}: Props) => {
           optimisticData: [data, ...messages!],
           rollbackOnError: true,
         });
-      };
+      }
     });
 
     return () => {
       channel.unbind_all();
       channel.unsubscribe();
-    }
+    };
   }, [messages, mutate, clientPusher]);
-
-  console.log(JSON.stringify(initialMessages) === JSON.stringify(messages))
-
-  console.log(initialMessages.map(a=>a))
 
   return (
     <div className="space-y-5 px-5 pt-8 pb-32 max-w-2xl xl:max-w-4xl mx-auto">
       {(messages || initialMessages).map((message) => (
-        <div>
-          <MessageComponent key={message.id} message={message} />
-        </div>
+        <MessageComponent key={message.id} message={message} />
       ))}
     </div>
   );

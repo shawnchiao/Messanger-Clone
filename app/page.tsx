@@ -1,5 +1,3 @@
-import React from "react";
-import "../styles/globals.css";
 import { Message } from "../typings";
 import ChatInput from "./ChatInput";
 import MessageList from "./MessageList";
