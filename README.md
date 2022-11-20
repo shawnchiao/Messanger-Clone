@@ -6,6 +6,6 @@ To run this application in you local environment.
 ```bash
 npm run dev
 ```
-This App is not live yet, for the experience purpose, use this account to log in:
-email: chipy028@mymail.unisa.edu.au
+This App is not live yet, for the experience purpose, use this account to log in:\
+email: chipy028@mymail.unisa.edu.au\
 password: abcd12345
